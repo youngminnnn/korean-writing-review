@@ -1,0 +1,4 @@
+interface:
+  display_name: "한국어 글 검토"
+  short_description: "글의 장점을 찾고 중요한 개선점부터 제안합니다"
+  default_prompt: "$review-korean-writing 스킬로 아래 글의 장점과 개선점을 검토해줘. 원문 용어가 더 이해하기 쉬우면 유지해줘."

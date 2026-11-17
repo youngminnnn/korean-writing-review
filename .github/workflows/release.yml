@@ -1,0 +1,37 @@
+name: Release skill ZIP
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate and build installation ZIP
+        run: python3 scripts/validate.py
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo 'Use a stable release tag such as v0.1.0.' >&2
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" dist/review-korean-writing.zip \
+            --verify-tag \
+            --title "한국어 글 검토 $RELEASE_TAG" \
+            --notes '설치하려면 Assets의 review-korean-writing.zip을 다운로드하세요. ChatGPT·Claude 앱별 설치 및 업데이트 방법은 저장소 README를 확인하세요. Source code ZIP은 설치용 파일이 아닙니다.'
