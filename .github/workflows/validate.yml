@@ -1,4 +1,4 @@
-name: Validate skill package
+name: Validate skill and plugin packages
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
@@ -13,5 +13,5 @@ jobs:
       - run: python3 scripts/validate.py
       - uses: actions/upload-artifact@v4
         with:
-          name: review-korean-writing
-          path: dist/review-korean-writing.zip
+          name: korean-writing-review-packages
+          path: dist/*.zip

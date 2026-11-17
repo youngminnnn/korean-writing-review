@@ -4,7 +4,23 @@ ChatGPT·Claude 등이 한국어 비문학 글을 검토할 때 사용하는 지
 
 보고서, 설명문, 논설문, 업무 메일, 안내문, 기술 문서를 대상으로 합니다. 기본 동작은 분석과 부분 수정 제안이며, 전체 재작성은 요청했을 때 수행합니다.
 
-## 앱에서 설치하기 — 터미널 없이
+## ChatGPT 플러그인으로 사용하기
+
+기존 스킬을 포함한 `korean-writing-review` 플러그인을 제공합니다. **공개 플러그인 디렉터리에는 아직 등록되지 않았습니다.** 현재는 GitHub 마켓플레이스를 지원하는 로컬 클라이언트에서 설치하거나, 아래 개발·배포 절차로 플러그인 ZIP을 만들 수 있습니다.
+
+### GitHub 마켓플레이스로 설치
+
+`codex plugin marketplace` 명령을 지원하는 최신 Codex CLI에서 실행합니다.
+
+```sh
+codex plugin marketplace add youngminnnn/korean-writing-review
+```
+
+ChatGPT 데스크톱 앱의 로컬 실행 환경에서 Plugins Directory를 새로고침하고, 소스 **한국어 글 검토**에서 플러그인을 설치합니다. 새 대화에서 `@`로 **한국어 글 검토**를 선택하고 원문을 보냅니다. 메뉴·로컬 마켓플레이스 지원 여부는 클라이언트와 워크스페이스 설정에 따라 다릅니다. 이 명령은 ChatGPT 웹 계정에 플러그인을 공개하거나 등록하지 않습니다. [공식 패키징·마켓플레이스 안내](https://developers.openai.com/plugins/build/plugins)
+
+스킬 ZIP으로 이미 설치했다면 같은 지침이 중복 적용되지 않도록 한 경로만 활성화하세요. **플러그인 형식과 ZIP 내용은 검증했지만 ChatGPT 앱에서 실제 설치·호출은 아직 검증하지 않았습니다.**
+
+## 앱에 스킬로 설치하기 — 터미널 없이
 
 **[설치용 ZIP 다운로드](https://github.com/youngminnnn/korean-writing-review/releases/latest/download/review-korean-writing.zip)** · [버전별 다운로드](https://github.com/youngminnnn/korean-writing-review/releases)
 
@@ -83,6 +99,8 @@ Codex에서는 `$review-korean-writing`으로 호출할 수도 있습니다.
 
 ## 업데이트
 
+- **GitHub 마켓플레이스로 설치했다면:** `codex plugin marketplace upgrade korean-writing-review`로 소스를 갱신하고 앱에서 해당 플러그인을 업데이트한 뒤 새 대화에서 확인합니다. 공개 디렉터리에 게시된 플러그인은 별도로 관리됩니다.
+
 - **앱에 ZIP으로 설치했다면:** [최신 릴리스](https://github.com/youngminnnn/korean-writing-review/releases/latest)에서 새 ZIP을 받습니다. 앱에 교체·업데이트 기능이 있으면 이를 사용하고, 없다면 기존 스킬을 비활성화하거나 제거한 뒤 새 ZIP을 등록합니다. 직접 수정한 내용은 먼저 보관하세요. GitHub의 변경이 업로드한 스킬에 자동 반영되지는 않습니다. 등록 후 새 대화에서 스킬을 확인합니다.
 - **npx로 설치했다면:** `npx skills check`로 확인하고 `npx skills update`로 갱신합니다. CLI 버전에 따라 범위 선택을 확인하세요.
 
@@ -99,6 +117,8 @@ npx skills add youngminnnn/korean-writing-review@v0.1.0 --skill review-korean-wr
 ### 파일 구성과 검증
 
 ```text
+plugin.json                         # 플러그인 정보·앱 표시 정보
+.agents/plugins/marketplace.json    # GitHub 마켓플레이스 목록
 skills/review-korean-writing/
   SKILL.md
   agents/openai.yaml   # 앱 표시 이름·설명·기본 요청
@@ -106,7 +126,7 @@ skills/review-korean-writing/
     criteria.md
     korean-style.md
     examples.md
-scripts/validate.py    # 형식·참조 파일 검증 및 설치 ZIP 생성
+scripts/validate.py    # 형식·참조 파일 검증 및 두 종류 ZIP 생성
 ```
 
 `agents/openai.yaml`은 앱 표시 이름·설명·기본 요청을 지정합니다. [공식 스킬 문서](https://learn.chatgpt.com/docs/build-skills)의 메타데이터 형식을 따릅니다.
@@ -117,15 +137,26 @@ python3 scripts/validate.py
 
 검증을 통과하면 `dist/review-korean-writing.zip`을 만듭니다. ZIP 안의 최상위 폴더는 `review-korean-writing`이며 스킬 본문과 참고 문서가 함께 들어 있습니다. ZIP 업로드를 지원하는 환경에서는 해당 환경의 안내에 따라 사용합니다. GitHub 전체 소스 ZIP과 구별하세요.
 
+같은 명령으로 `dist/korean-writing-review-plugin.zip`도 만듭니다. 이 ZIP은 루트에 `plugin.json`, `LICENSE`, `skills/`를 포함하며, 일반 스킬 업로드용 ZIP과 구별해야 합니다. 두 패키지는 동일한 스킬 원본에서 생성합니다. 빌드 도구나 GitHub Actions 파일은 플러그인 ZIP에 포함하지 않습니다.
+
 CI는 패키지 형식과 참조 누락을 검사합니다. 글 검토 품질은 자동으로 보증하지 않습니다.
 
 ### 릴리스 발행
 
-관리자는 검증된 커밋에 `v0.1.0` 같은 버전 태그를 붙여 push합니다. GitHub Actions가 패키지를 검증하고 설치용 ZIP을 해당 버전의 GitHub Release에 자동으로 첨부합니다. 태그는 새 버전마다 새로 만들며 이미 배포한 버전은 덮어쓰지 않습니다.
+관리자는 `plugin.json`의 `version`을 갱신하고 검증된 커밋에 같은 버전의 태그를 붙여 push합니다. 태그와 플러그인 버전이 다르면 검증이 실패합니다. GitHub Actions가 두 ZIP을 해당 버전의 GitHub Release에 자동으로 첨부합니다. 태그는 새 버전마다 새로 만들며 이미 배포한 버전은 덮어쓰지 않습니다.
 
 ```sh
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
 위 명령의 버전은 예시입니다. 다음 발행 시에는 아직 사용하지 않은 버전으로 바꿉니다. README 상단 다운로드 링크는 최신 정식 릴리스를 가리킵니다.
+
+### ChatGPT 공개 플러그인 제출
+
+1. `python3 scripts/validate.py`로 생성한 `dist/korean-writing-review-plugin.zip`을 준비합니다.
+2. OpenAI Platform의 Plugins에서 게시 주체와 제작자 신원을 확인하고 플러그인 ZIP을 업로드합니다.
+3. 메타데이터·스킬 자동 검사 결과를 해결한 뒤 심사를 요청합니다. 승인 후 공개 여부를 결정합니다. 제출 화면이 요구하는 추가 제작자 정보는 실제 정보로 작성합니다.
+4. 스킬이나 표시 정보를 수정하면 버전을 올려 새 ZIP을 제출합니다. GitHub push나 GitHub Release만으로 공개 디렉터리의 플러그인이 갱신되지는 않습니다.
+
+이 플러그인은 스킬만 포함하며 별도 MCP 서버나 외부 서비스 인증을 요구하지 않습니다. 로컬 프로그램 실행을 필수로 요구하지 않으므로 Desktop only로 지정하지 않습니다. [공식 제출 안내](https://developers.openai.com/plugins/deploy/submission)

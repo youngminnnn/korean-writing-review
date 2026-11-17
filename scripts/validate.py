@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Validate the distributable skill and build its ZIP; stdlib only."""
+"""Validate and build the skill and plugin ZIPs; stdlib only."""
 from pathlib import Path
+import json
+import os
 import re
 import zipfile
 
@@ -41,6 +43,34 @@ def main():
         assert len(archive.namelist()) == len(files)
     print(f"PASS: metadata, local links, self-contained package; {len(files)} files")
     print(f"Built {out}")
+    manifest = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
+    assert manifest["$schema"] == "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+    assert manifest["name"] == "korean-writing-review"
+    assert re.fullmatch(r"\d+\.\d+\.\d+", manifest["version"]), "Use a stable semantic version"
+    if os.environ.get("GITHUB_REF_TYPE") == "tag":
+        assert os.environ["GITHUB_REF_NAME"] == f"v{manifest['version']}", "Tag must match plugin version"
+    interface = manifest["extensions"]["com.openai"]["interface"]
+    for key in ("displayName", "shortDescription", "longDescription", "developerName", "defaultPrompt"):
+        assert interface[key], f"Missing plugin presentation: {key}"
+    marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
+    assert len(marketplace["plugins"]) == 1
+    entry = marketplace["plugins"][0]
+    assert entry["name"] == manifest["name"]
+    assert entry["source"] == {"source": "local", "path": "./"}
+    assert entry["policy"] == {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}
+    plugin_files = [ROOT / "plugin.json", ROOT / "LICENSE", *files]
+    assert not any(p.is_symlink() for p in plugin_files), "No external symlinks"
+    plugin_out = ROOT / "dist" / f"{manifest['name']}-plugin.zip"
+    with zipfile.ZipFile(plugin_out, "w", zipfile.ZIP_DEFLATED) as archive:
+        for path in plugin_files:
+            archive.write(path, path.relative_to(ROOT))
+    with zipfile.ZipFile(plugin_out) as archive:
+        assert archive.testzip() is None
+        assert set(archive.namelist()) == {p.relative_to(ROOT).as_posix() for p in plugin_files}
+        for path in plugin_files:
+            assert archive.read(path.relative_to(ROOT).as_posix()) == path.read_bytes()
+    print(f"PASS: plugin metadata, marketplace, ZIP contents; {len(plugin_files)} files")
+    print(f"Built {plugin_out}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,20 @@
+{
+  "name": "korean-writing-review",
+  "interface": {
+    "displayName": "한국어 글 검토"
+  },
+  "plugins": [
+    {
+      "name": "korean-writing-review",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

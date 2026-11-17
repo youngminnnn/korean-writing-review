@@ -1,4 +1,4 @@
-name: Release skill ZIP
+name: Release skill and plugin ZIPs
 on:
   push:
     tags:
@@ -31,7 +31,7 @@ jobs:
             echo 'Use a stable release tag such as v0.1.0.' >&2
             exit 1
           fi
-          gh release create "$RELEASE_TAG" dist/review-korean-writing.zip \
+          gh release create "$RELEASE_TAG" dist/review-korean-writing.zip dist/korean-writing-review-plugin.zip \
             --verify-tag \
             --title "한국어 글 검토 $RELEASE_TAG" \
-            --notes '설치하려면 Assets의 review-korean-writing.zip을 다운로드하세요. ChatGPT·Claude 앱별 설치 및 업데이트 방법은 저장소 README를 확인하세요. Source code ZIP은 설치용 파일이 아닙니다.'
+            --notes '스킬 업로드에는 review-korean-writing.zip, ChatGPT 플러그인 패키지에는 korean-writing-review-plugin.zip을 사용하세요. 설치 방법과 공개 등록 상태는 README를 확인하세요. Source code ZIP은 설치용 파일이 아닙니다.'

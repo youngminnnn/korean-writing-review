@@ -1,0 +1,34 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "korean-writing-review",
+  "version": "0.2.0",
+  "description": "한국어 비문학 글의 장점을 근거와 함께 설명하고, 중요한 개선점부터 제안합니다.",
+  "author": {
+    "name": "youngminnnn",
+    "url": "https://github.com/youngminnnn"
+  },
+  "homepage": "https://github.com/youngminnnn/korean-writing-review",
+  "repository": "https://github.com/youngminnnn/korean-writing-review",
+  "license": "MIT",
+  "keywords": [
+    "korean",
+    "writing",
+    "editing"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "한국어 글 검토",
+        "shortDescription": "글의 장점을 찾고 중요한 개선점부터 제안합니다",
+        "longDescription": "보고서, 설명문, 업무 메일, 기술 문서 등 한국어 비문학 글을 검토합니다. 이해 용이성, 정확성, 문법, 흐름, 맥락과 논리를 살피고 원문 근거와 수정안을 제시합니다. 익숙한 전문 용어와 글쓴이의 문체를 존중하며, 전체 재작성은 요청할 때 수행합니다.",
+        "developerName": "youngminnnn",
+        "category": "Productivity",
+        "websiteURL": "https://github.com/youngminnnn/korean-writing-review",
+        "defaultPrompt": [
+          "아래 글의 장점과 중요한 개선점을 검토해줘. 원문 용어가 더 이해하기 쉬우면 유지해줘.",
+          "전문가 대상 보고서야. 전문 용어와 격식을 유지하면서 논리와 문단 흐름을 검토해줘."
+        ]
+      }
+    }
+  }
+}
